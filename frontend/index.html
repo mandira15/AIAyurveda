@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Ayurveda</title>
+  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.development.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Lora', serif;
+      background: linear-gradient(180deg, #FAF5EF 0%, #F5ECE2 100%); /* Soft ivory gradient */
+      color: #2E1A1F; /* Dark burgundy text */
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+    header {
+      background: linear-gradient(135deg, #2c5d63 0%, #2c5d63 100%); /* Deep burgundy gradient */
+      color: #FAF5EF;
+      padding: 40px 0;
+      text-align: center;
+      border-bottom: 3px solid #D4A017; /* Muted gold accent */
+    }
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    header p {
+      margin: 15px 0 0;
+      font-size: 1.3rem;
+      font-style: italic;
+      opacity: 0.85;
+    }
+    main {
+      flex-grow: 1;
+      padding: 50px 20px;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .intro {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    .intro h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #2c5d63;
+      position: relative;
+    }
+    .intro h2::after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 2px;
+      background: #D4A017;
+      margin: 15px auto;
+      opacity: 0.8;
+    }
+    .intro p {
+      font-size: 1.2rem;
+      max-width: 650px;
+      margin: 0 auto;
+      color: #2c5d63;
+    }
+    .prompt-section {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #FFF8F0; /* Light ivory */
+      padding: 35px;
+      border-radius: 12px;
+      border: 1px solid #D4A017;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    .prompt-section:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    textarea {
+      width: 100%;
+      height: 110px;
+      padding: 4px;
+      border: 1px solid #D4A017;
+      border-radius: 8px;
+      background: #FEFBF6;
+      color: #2c5d63;
+      font-size: 1.1rem;
+      font-family: 'Lora', serif;
+      resize: none;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    textarea:focus {
+      outline: none;
+      border-color:#2c5d63;
+      box-shadow: 0 0 10px #2c5d63(74, 28, 42, 0.3);
+    }
+    button {
+      display: block;
+      margin: 25px auto 0;
+      padding: 12px 35px;
+      background: linear-gradient(135deg, #2c5d63 0%, #2c5d63 100%);
+      color: #FAF5EF;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      font-family: 'Playfair Display', serif;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+    button:hover {
+      background: linear-gradient(135deg, #2c5d63 0%, #2c5d63 100%);
+      transform: scale(1.08);
+    }
+    footer {
+      background: #2c5d63; /* Very dark burgundy */
+      color: #FAF5EF;
+      padding: 20px 0;
+      text-align: center;
+      font-size: 1rem;
+      font-style: italic;
+      border-top: 2px solid #D4A017;
+    }
+    .response {
+      margin-top: 20px;
+      font-size: 1.1rem;
+      color: #2c5d63;
+      text-align: center;
+      padding: 15px;
+      background: #FFF8F0;
+      border-radius: 8px;
+      border: 1px solid #D4A017;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const App = () => {
+      const [prompt, setPrompt] = React.useState('');
+      const [response, setResponse] = React.useState('');
+
+      const handleSubmit = async () => {
+        try {
+          const res = await fetch('http://localhost:8000/api/ayurveda', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt }),
+          });
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          const data = await res.json();
+          setResponse(data.response);
+        } catch (error) {
+          setResponse('Error: Could not connect to the server.');
+        }
+      };
+
+      return (
+        <div>
+          <header>
+            <h1>AI-Ayurveda</h1>
+            <p>A Sanctuary of Holistic Wisdom</p>
+          </header>
+          <main>
+            <section className="intro">
+              <h2>Elevate Your Well-Being</h2>
+              <p>
+                Engage with our refined AI assistant to uncover bespoke Ayurvedic insights, offering timeless remedies and elegant lifestyle guidance for harmony and vitality.
+              </p>
+            </section>
+            <section className="prompt-section">
+              <textarea
+                placeholder="Pose your Ayurvedic inquiry (e.g., 'What remedies soothe the mind?' or 'How may I harmonize my Kapha dosha?')"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+              ></textarea>
+              <button onClick={handleSubmit}>Submit Inquiry</button>
+              {response && <p className="response">{response}</p>}
+            </section>
+          </main>
+          <footer>
+            <p>© 2025 AI-Ayurveda. All rights reserved.</p>
+          </footer>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
